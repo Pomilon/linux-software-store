@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Linux Software</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Styles & Reset */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            /* Darker background */
+            color: #e0e0e0;
+            /* Lighter text */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            /* Prevent body scroll */
+        }
+
+        /* Header */
+        header {
+            background: #282828;
+            /* Slightly lighter header */
+            color: #ffffff;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        header .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header .header-title i {
+            font-size: 1.8rem;
+            color: #007bff;
+            /* A vibrant blue */
+        }
+
+        header button {
+            background: none;
+            border: none;
+            color: #e0e0e0;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        header button:hover {
+            background: #3a3a3a;
+            color: #ffffff;
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            /* Allows content to scroll */
+            padding: 15px 20px;
+            /* More padding */
+            /* Adjusted padding to prevent overlap with operations queue and nav bar */
+            padding-bottom: 280px; /* Max height of queue (200px) + nav height (60px) + 20px buffer */
+            -webkit-overflow-scrolling: touch;
+            /* Smooth scrolling on touch devices */
+        }
+
+        /* Search Input */
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            /* Padding for icon */
+            border-radius: 25px;
+            /* More rounded */
+            border: none;
+            background: #2d2d2d;
+            /* Darker input background */
+            color: #e0e0e0;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+            transition: background 0.3s ease;
+        }
+
+        .search-input::placeholder {
+            color: #a0a0a0;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: #3a3a3a;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            background: #282828;
+            /* Match header background */
+            justify-content: space-around;
+            border-top: 1px solid #3a3a3a;
+            /* Subtle border */
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+            padding: 5px 0;
+            height: 60px; /* Fixed height for navigation bar */
+            box-sizing: border-box; /* Include padding and border in height */
+            z-index: 567;
+            position: fixed; /* Make it stick to the bottom */
+            bottom: 0;
+            width: 100%;
+        }
+
+        nav button {
+            flex: 1;
+            padding: 12px 0;
+            color: #a0a0a0;
+            background: none;
+            border: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.3s ease;
+        }
+
+        nav button i {
+            font-size: 1.3rem;
+        }
+
+        nav button.active {
+            color: #007bff;
+            /* Active tab color */
+            font-weight: 600;
+        }
+
+        nav button.active::after {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 3px;
+            background: #007bff;
+            border-radius: 2px;
+            margin-top: 5px;
+            animation: tabUnderline 0.3s forwards;
+        }
+
+        @keyframes tabUnderline {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 30px;
+            }
+        }
+
+
+        /* Card Styles */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            /* Responsive grid */
+            gap: 15px;
+            padding-top: 10px;
+        }
+
+        .app-card {
+            background: #2d2d2d;
+            border-radius: 15px;
+            /* More rounded corners */
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            /* Stronger shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            cursor: pointer;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        }
+
+        .app-card .app-icon {
+            width: 80px;
+            height: 80px;
+            background: #4a4a4a;
+            /* Placeholder for icon */
+            border-radius: 18%;
+            /* Slightly rounded square */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            color: #ffffff;
+            margin-bottom: 10px;
+            overflow: hidden;
+            /* Ensure images fit */
+        }
+
+        .app-card .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: #ffffff;
+            /* White title */
+        }
+
+        .app-card p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #b0b0b0;
+            /* Lighter description */
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        /* Button Styles */
+        .btn-container {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            /* Pill shape */
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background 0.3s ease, transform 0.1s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.install {
+            background: #007bff;
+            /* Blue */
+            color: #ffffff;
+        }
+
+        .btn.install:hover {
+            background: #0067da;
+        }
+
+        .btn.uninstall {
+            background: #dc3545;
+            /* Red */
+            color: #ffffff;
+        }
+
+        .btn.uninstall:hover {
+            background: #c82333;
+        }
+
+        .btn.update {
+            background: #ffc107;
+            /* Yellow */
+            color: #212529;
+        }
+
+        .btn.update:hover {
+            background: #e0a800;
+        }
+
+        /* Disabled button styles */
+        .btn:disabled,
+        .btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #555 !important;
+            color: #bbb !important;
+        }
+
+        /* Status message */
+        .status {
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            color: #03dac6;
+            /* A vibrant green */
+            background: #2d2d2d;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease-in-out;
+            /* Added transition for status */
+        }
+
+        /* App Detail Modal (New) */
+        .modal {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            /* Dim background */
+            backdrop-filter: blur(5px);
+            /* Blurred background */
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            background-color: #2d2d2d;
+            margin: auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+            position: relative;
+            animation: slideInUp 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #fff;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .modal-header .app-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 22%;
+            background: #4a4a4a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4rem;
+            color: #ffffff;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .modal-header .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .modal-header-info h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: #ffffff;
+        }
+
+        .modal-header-info p {
+            margin: 5px 0 0 0;
+            color: #b0b0b0;
+            font-size: 1rem;
+        }
+
+        .modal-description {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #3a3a3a;
+            padding-top: 20px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* New animations for content transitions */
+        .content-fade-out {
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .content-fade-in {
+            opacity: 0;
+            /* Start from invisible */
+            animation: fadeIn 0.3s ease-in forwards;
+            /* Use fadeIn keyframe */
+        }
+
+        /* --- Operations Queue Display --- */
+        #operationsContainer {
+            position: fixed;
+            bottom: 60px; /* Position directly above the nav bar (60px height) */
+            left: 0;
+            width: 100%;
+            background: #282828;
+            border-top: 1px solid #3a3a3a;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+            max-height: 250px; /* Max expanded height */
+            overflow: hidden; /* Hide overflow when collapsed */
+            z-index: 90;
+            transition: transform 0.3s ease-out, max-height 0.3s ease-out;
+            transform: translateY(calc(100% - 45px)); /* Show only header (45px) */
+        }
+
+        #operationsContainer.expanded {
+            transform: translateY(0);
+            max-height: 250px; /* Fully expanded height */
+            overflow-y: auto;
+        }
+
+        #operationsHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #2d2d2d; /* Slightly different background for header */
+            border-bottom: 1px solid #3a3a3a;
+            cursor: pointer;
+            height: 45px; /* Fixed height for the header bar */
+            box-sizing: border-box;
+        }
+
+        #operationsHeader h4 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 1.1rem;
+        }
+
+        #operationsToggleBtn {
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            padding: 5px;
+        }
+
+        #operationsContainer.expanded #operationsToggleBtn {
+            transform: rotate(180deg);
+        }
+
+        #operationsList {
+            padding: 10px 15px;
+            /* Initial padding, will be contained by overflow:hidden */
+            overflow-y: auto;
+            max-height: calc(250px - 45px); /* Max height for scrollable content */
+        }
+
+        #operationsList p {
+            margin: 0;
+            text-align: center;
+            color: #b0b0b0;
+        }
+
+        .operation-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #3a3a3a;
+        }
+
+        .operation-item:last-child {
+            border-bottom: none;
+        }
+
+        .operation-item .op-icon {
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        .operation-item .op-text {
+            flex-grow: 1;
+            color: #e0e0e0;
+            font-size: 0.95rem;
+        }
+
+        .operation-item .op-progress-bar-container {
+            width: 80px;
+            height: 8px;
+            background-color: #4a4a4a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .operation-item .op-progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #03dac6;
+            transition: width 0.3s ease-out;
+        }
+
+        .operation-item .op-percentage {
+            min-width: 40px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: #b0b0b0;
+        }
+
+        .operation-item .op-status-text {
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: #b0b0b0;
+            white-space: nowrap;
+        }
+
+        /* Specific status colors */
+        .operation-item.success .op-status-text {
+            color: #03dac6;
+        }
+
+        .operation-item.failed .op-status-text {
+            color: #dc3545;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="header-title">
+            <i class="fas fa-box-open"></i>
+            Linux Software
+        </div>
+        <button id="refreshBtn" title="Refresh">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+    </header>
+
+    <main>
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input id="searchInput" type="search" placeholder="Search packages..." class="search-input" />
+        </div>
+        <div id="content" class="app-grid"></div>
+        <div id="status" class="status"></div>
+    </main>
+
+    <nav>
+        <button id="tab-explore" class="active">
+            <i class="fas fa-compass"></i>
+            <span>Explore</span>
+        </button>
+        <button id="tab-installed">
+            <i class="fas fa-hdd"></i>
+            <span>Installed</span>
+        </button>
+        <button id="tab-updates">
+            <i class="fas fa-cloud-download-alt"></i>
+            <span>Updates</span>
+        </button>
+    </nav>
+
+    <!-- App Detail Modal -->
+    <div id="appDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeAppDetailModalBtn">&times;</span>
+            <div class="modal-header">
+                <div class="app-icon" id="modalAppIcon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <div class="modal-header-info">
+                    <h2 id="modalAppName"></h2>
+                    <p id="modalAppVersion"></p>
+                    <p id="modalAppSource"></p>
+                </div>
+            </div>
+            <p class="modal-description" id="modalAppDescription"></p>
+            <div class="modal-actions" id="modalAppActions">
+                <!-- Buttons will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Operations Queue Display -->
+    <div id="operationsContainer">
+        <div id="operationsHeader">
+            <h4><i class="fas fa-tasks"></i> Active Operations</h4>
+            <button id="operationsToggleBtn"><i class="fas fa-chevron-up"></i></button>
+        </div>
+        <div id="operationsList">
+            <!-- Operation items will be added here -->
+            <p>No active operations.</p>
+        </div>
+    </div>
+
+
+    <script>
+        // Shim for window.webkit.messageHandlers for environments where it's not present
+        if (!window.webkit) {
+            window.webkit = {
+                messageHandlers: {}
+            };
+        }
+        if (!window.webkit.messageHandlers.appstore) {
+            window.webkit.messageHandlers.appstore = {
+                postMessage: function (message) {
+                    console.warn("window.webkit.messageHandlers.appstore is not fully initialized. Message:", message);
+                    // You might want to display a user-friendly error or fallback behavior here.
+                }
+            };
+        }
+
+        const content = document.getElementById('content');
+        const statusEl = document.getElementById('status');
+        const searchInput = document.getElementById('searchInput');
+        const appDetailModal = document.getElementById('appDetailModal');
+        const closeAppDetailModalBtn = document.getElementById('closeAppDetailModalBtn');
+
+        const modalAppName = document.getElementById('modalAppName');
+        const modalAppVersion = document.getElementById('modalAppVersion');
+        const modalAppSource = document.getElementById('modalAppSource');
+        const modalAppDescription = document.getElementById('modalAppDescription');
+        const modalAppActions = document.getElementById('modalAppActions');
+        const modalAppIcon = document.getElementById('modalAppIcon');
+
+        // New elements for operation queue display
+        const operationsContainer = document.getElementById('operationsContainer');
+        const operationsHeader = document.getElementById('operationsHeader');
+        const operationsToggleBtn = document.getElementById('operationsToggleBtn');
+        const operationsList = document.getElementById('operationsList');
+
+        let currentTab = 'explore';
+        let installedPackages = [];
+        let updates = [];
+        let explorePackages = []; // Holds initial explore data (mocked or pre-loaded)
+        let lastSearchResults = []; // Stores the last search results to re-render if needed
+
+        // Operation Queue Variables
+        let operationQueue = []; // Holds operations to be processed sequentially
+        let currentActiveOperation = null; // Stores the operation currently being executed
+        let operationUIMap = {}; // Maps package identifiers (e.g., raw_name) to their operation-item DOM elements
+
+        // --- Helper Functions ---
+
+        function setStatus(msg) {
+            if (msg) {
+                statusEl.textContent = msg;
+                statusEl.style.opacity = '1';
+                statusEl.style.display = 'block'; // Ensure it's visible to start fade-in
+            } else {
+                statusEl.style.opacity = '0'; // Start fading out
+                setTimeout(() => {
+                    statusEl.textContent = '';
+                    statusEl.style.display = 'none'; // Hide after fade out
+                }, 300); // Match CSS transition duration
+            }
+        }
+
+        function clearStatus() {
+            setStatus('');
+        }
+
+        function logToPython(msg) {
+            try {
+                window.webkit.messageHandlers.appstore.postMessage(JSON.stringify({
+                    command: 'log',
+                    message: msg
+                }));
+            } catch (e) {
+                console.error("Failed to send log to Python:", e);
+            }
+        }
+
+        function setActiveTab(tabId) {
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // --- Operation Queue Management ---
+
+        function addToOperationQueue(operation) {
+            operation.id = operation.pkg.raw_name || operation.pkg.name; // Unique ID for tracking
+            
+            // Prevent adding duplicate operations to the queue
+            const existingQueueItem = operationQueue.find(op => op.id === operation.id);
+            if (existingQueueItem) {
+                logToPython(`Operation ${operation.id} already in queue. Skipping.`);
+                return;
+            }
+            // Prevent adding if already current active operation
+            if (currentActiveOperation && currentActiveOperation.id === operation.id) {
+                logToPython(`Operation ${operation.id} is currently active. Skipping.`);
+                return;
+            }
+
+            operation.status = 'Queued';
+            operation.progress = 0;
+            operationQueue.push(operation);
+            logToPython(`Operation added to queue: ${operation.command} ${operation.pkg.name}. Queue size: ${operationQueue.length}`);
+            updateOperationUI(operation.id, operation.pkg.name, operation.command, operation.status, operation.progress);
+            toggleOperationsQueue(true); // Expand the queue when a new operation is added
+            processOperationQueue(); // Attempt to process the queue
+        }
+
+        function processOperationQueue() {
+            if (currentActiveOperation === null && operationQueue.length > 0) {
+                currentActiveOperation = operationQueue.shift(); // Get next operation from queue
+                logToPython(`Processing operation: ${currentActiveOperation.command} ${currentActiveOperation.pkg.name}`);
+                currentActiveOperation.status = 'Starting...';
+                updateOperationUI(currentActiveOperation.id, currentActiveOperation.pkg.name, currentActiveOperation.command, currentActiveOperation.status, 0);
+
+                const messagePayload = {
+                    command: currentActiveOperation.command,
+                    package: currentActiveOperation.pkg
+                };
+
+                logToPython("Sending command to backend: " + JSON.stringify(messagePayload));
+                try {
+                    window.webkit.messageHandlers.appstore.postMessage(JSON.stringify(messagePayload));
+                } catch (e) {
+                    logToPython("PostMessage failed: " + e);
+                    setStatus("Error: Could not send command to backend.");
+                    // Mark as failed and move to next in queue
+                    operationCompleted(currentActiveOperation.id, false, "Failed to send command.");
+                }
+            } else if (operationQueue.length === 0 && currentActiveOperation === null && Object.keys(operationUIMap).length === 0) {
+                // No operations pending or active, and no items left in UI map
+                operationsList.innerHTML = '<p>No active operations.</p>';
+                toggleOperationsQueue(false); // Collapse the queue if empty
+            } else {
+                logToPython(`Queue: ${operationQueue.length} pending, current operation: ${currentActiveOperation ? currentActiveOperation.pkg.name : 'None'}`);
+            }
+        }
+
+        function operationCompleted(operationId, success, message) {
+            logToPython(`Operation ${operationId} completed. Success: ${success}, Message: ${message}`);
+            
+            const statusText = success ? 'Completed' : 'Failed';
+            const progress = success ? 100 : 0; // Set to 100% on success, 0% on failure
+            updateOperationUI(operationId, null, null, statusText, progress, success ? 'success' : 'failed');
+
+            currentActiveOperation = null; // Clear current operation
+            
+            // Remove operation from UI after a short delay
+            setTimeout(() => {
+                const item = operationUIMap[operationId];
+                if (item && item.parentElement) {
+                    item.parentElement.removeChild(item);
+                    delete operationUIMap[operationId];
+                    // If no items left, clear the placeholder and collapse
+                    if (Object.keys(operationUIMap).length === 0) {
+                        operationsList.innerHTML = '<p>No active operations.</p>';
+                        toggleOperationsQueue(false); // Collapse the queue if empty
+                    }
+                }
+            }, 3000); // Keep status visible for 3 seconds
+
+            // Process the next operation in queue
+            processOperationQueue(); 
+
+            // Trigger a full refresh of lists to update button states and package availability
+            // Only refresh after some time to allow the UI to update status
+            setTimeout(() => {
+                fetchInstalled();
+                fetchUpdates();
+                fetchExplorePackages(); // This will trigger a renderExplore and thus a transition
+
+                // Re-render current tab's view to reflect new install/uninstall status
+                if (currentTab === 'explore') renderExplore();
+                else if (currentTab === 'installed') renderInstalled();
+                else if (currentTab === 'updates') renderUpdates();
+            }, 500); // Give the UI a moment to show completion before refreshing data
+
+        }
+
+        function updateOperationUI(id, name, command, status, progress, finalClass = '') {
+            if (Object.keys(operationUIMap).length === 0) {
+                operationsList.innerHTML = ''; // Clear placeholder if first item
+            }
+
+            let operationItem = operationUIMap[id];
+            if (!operationItem) {
+                operationItem = document.createElement('div');
+                operationItem.className = 'operation-item';
+                operationItem.id = `op-${id}`;
+                operationsList.appendChild(operationItem);
+                operationUIMap[id] = operationItem; // Store reference
+            }
+
+            let iconClass = '';
+            let actionText = '';
+            // If command is not explicitly passed (e.g., from progress updates), use stored or currentActiveOperation's command
+            const currentCommand = command || operationItem.dataset.command || (currentActiveOperation && currentActiveOperation.id === id ? currentActiveOperation.command : 'unknown');
+
+            if (currentCommand === 'install') {
+                iconClass = 'fas fa-download';
+                actionText = 'Installing';
+            } else if (currentCommand === 'uninstall') {
+                iconClass = 'fas fa-trash-alt';
+                actionText = 'Uninstalling';
+            } else if (currentCommand === 'update') { 
+                iconClass = 'fas fa-cloud-download-alt';
+                actionText = 'Updating';
+            } else {
+                iconClass = 'fas fa-info-circle';
+                actionText = 'Processing';
+            }
+
+            // Ensure name is available for existing items if not passed explicitly (e.g., from progress updates)
+            const currentName = name || operationItem.dataset.pkgName || 'Unknown Package';
+            
+            operationItem.innerHTML = `
+                <i class="op-icon ${iconClass}"></i>
+                <div class="op-text">${currentName} - ${actionText}</div>
+                <div class="op-progress-bar-container">
+                    <div class="op-progress-bar" style="width: ${Math.floor(progress)}%;"></div>
+                </div>
+                <span class="op-percentage">${Math.floor(progress)}%</span>
+                <span class="op-status-text">${status}</span>
+            `;
+            operationItem.dataset.pkgName = currentName; // Store for future updates
+            operationItem.dataset.command = currentCommand; // Store for future updates
+
+            // Apply final class only if provided (success/failed)
+            if (finalClass) {
+                operationItem.classList.add(finalClass);
+            } else {
+                // Remove any previous final classes if it's an ongoing update
+                operationItem.classList.remove('success', 'failed');
+            }
+            toggleOperationsQueue(true); // Ensure queue is visible if items are being updated
+        }
+
+        // --- Toggle Operations Queue Visibility ---
+        function toggleOperationsQueue(forceExpand = null) {
+            const isExpanded = operationsContainer.classList.contains('expanded');
+            if (forceExpand === true) {
+                if (!isExpanded) {
+                    operationsContainer.classList.add('expanded');
+                }
+            } else if (forceExpand === false) {
+                if (isExpanded && Object.keys(operationUIMap).length === 0 && operationQueue.length === 0 && currentActiveOperation === null) {
+                    operationsContainer.classList.remove('expanded');
+                }
+            } else { // Toggle if forceExpand is null
+                if (isExpanded) {
+                    operationsContainer.classList.remove('expanded');
+                } else {
+                    operationsContainer.classList.add('expanded');
+                }
+            }
+        }
+
+        operationsHeader.addEventListener('click', () => toggleOperationsQueue());
+
+
+        // --- Data Fetching (Actual for All Tabs, now with 'getExplorePackages' command) ---
+
+        function fetchExplorePackages() {
+            setStatus('Loading available packages...');
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.appstore) {
+                window.webkit.messageHandlers.appstore.postMessage(JSON.stringify({
+                    command: 'getExplorePackages'
+                }));
+            } else {
+                console.error("webkit.messageHandlers.appstore not available to fetch explore packages.");
+                setStatus("Error: Backend communication not ready.");
+            }
+        }
+
+        function fetchInstalled() {
+            setStatus('Loading installed packages...');
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.appstore) {
+                window.webkit.messageHandlers.appstore.postMessage(JSON.stringify({
+                    command: 'getInstalled'
+                }));
+            } else {
+                console.error("webkit.messageHandlers.appstore not available to fetch installed packages.");
+                setStatus("Error: Backend communication not ready.");
+            }
+        }
+
+        function fetchUpdates() {
+            setStatus('Checking for updates...');
+            if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.appstore) {
+                window.webkit.messageHandlers.appstore.postMessage(JSON.stringify({
+                    command: 'getUpdates'
+                }));
+            } else {
+                console.error("webkit.messageHandlers.appstore not available to fetch updates.");
+                setStatus("Error: Backend communication not ready.");
+            }
+        }
+
+        // --- Rendering Functions ---
+
+        function createAppCard(pkg, tabType) {
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.dataset.name = pkg.name; // Store data for modal
+
+            let iconHtml;
+            if (pkg.icon && (pkg.icon.startsWith('fas fa-') || pkg.icon.startsWith('fab fa-'))) {
+                iconHtml = `<i class="${pkg.icon}"></i>`;
+            } else if (pkg.icon) {
+                // Assume it's a URL or base64 if not a FontAwesome class
+                iconHtml = `<img src="${pkg.icon}" alt="${pkg.name} Icon">`;
+            } else {
+                iconHtml = `<i class="fas fa-cube"></i>`; // Default icon
+            }
+
+            // Determine button disabled state and text based on current operation queue
+            const pkgIdentifier = pkg.raw_name || pkg.name;
+            const isQueuedOrActive = operationQueue.some(op => op.id === pkgIdentifier) || 
+                                     (currentActiveOperation && currentActiveOperation.id === pkgIdentifier);
+
+            let installButtonHtml = '';
+            let uninstallButtonHtml = '';
+            let updateButtonHtml = '';
+
+            // Use logical OR to select appropriate text/icon
+            const getButtonState = (command, pkgId, defaultText, defaultIconClass) => {
+                const currentOp = currentActiveOperation;
+                const isCurrent = currentOp && currentOp.id === pkgId && currentOp.command === command;
+                const isQueued = operationQueue.some(op => op.id === pkgId && op.command === command);
+                
+                if (isCurrent) return { text: `${command.charAt(0).toUpperCase() + command.slice(1)}ing...`, icon: '<i class="fas fa-spinner fa-spin"></i>' };
+                if (isQueued) return { text: 'Queued', icon: '<i class="fas fa-hourglass-half"></i>' };
+                return { text: defaultText, icon: `<i class="${defaultIconClass}"></i>` };
+            };
+
+            if (tabType === 'explore') {
+                const state = getButtonState('install', pkgIdentifier, 'Install', 'fas fa-download');
+                installButtonHtml = `<button class="btn install ${isQueuedOrActive ? 'disabled' : ''}" ${isQueuedOrActive ? 'disabled' : ''} data-name="${pkg.name}" data-source="${pkg.source}" data-raw-name="${pkg.raw_name || ''}">${state.icon} ${state.text}</button>`;
+            } else if (tabType === 'installed') {
+                const state = getButtonState('uninstall', pkgIdentifier, 'Uninstall', 'fas fa-trash-alt');
+                uninstallButtonHtml = `<button class="btn uninstall ${isQueuedOrActive ? 'disabled' : ''}" ${isQueuedOrActive ? 'disabled' : ''} data-name="${pkg.name}" data-source="${pkg.source}" data-raw-name="${pkg.raw_name || ''}">${state.icon} ${state.text}</button>`;
+            } else if (tabType === 'updates') {
+                // Updates typically use the 'install' command in the backend
+                const state = getButtonState('install', pkgIdentifier, 'Update', 'fas fa-cloud-download-alt');
+                if (isQueuedOrActive && currentActiveOperation && currentActiveOperation.id === pkgIdentifier && currentActiveOperation.command === 'install' && currentActiveOperation.pkg.name === pkg.name) {
+                     // Specific text for updating in progress
+                    updateButtonHtml = `<button class="btn update disabled" disabled data-name="${pkg.name}" data-source="${pkg.source}" data-raw-name="${pkg.raw_name || ''}"><i class="fas fa-spinner fa-spin"></i> Updating...</button>`;
+                } else if (isQueuedOrActive && operationQueue.find(op => op.id === pkgIdentifier && op.command === 'install' && op.pkg.name === pkg.name)) {
+                     // Specific text for updating in queue
+                    updateButtonHtml = `<button class="btn update disabled" disabled data-name="${pkg.name}" data-source="${pkg.source}" data-raw-name="${pkg.raw_name || ''}"><i class="fas fa-hourglass-half"></i> Queued</button>`;
+                } else {
+                    updateButtonHtml = `<button class="btn update ${isQueuedOrActive ? 'disabled' : ''}" ${isQueuedOrActive ? 'disabled' : ''} data-name="${pkg.name}" data-source="${pkg.source}" data-raw-name="${pkg.raw_name || ''}"><i class="fas fa-cloud-download-alt"></i> Update</button>`;
+                }
+            }
+
+            card.innerHTML = `
+                <div class="app-icon">${iconHtml}</div>
+                <h3>${pkg.name}</h3>
+                <p>${pkg.description}</p>
+                <div class="btn-container">
+                    ${installButtonHtml}
+                    ${uninstallButtonHtml}
+                    ${updateButtonHtml}
+                </div>
+            `;
+
+            // Open modal on card click (excluding button clicks)
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.btn')) {
+                    showAppDetailModal(pkg, tabType);
+                }
+            });
+
+            return card;
+        }
+
+
+        function renderPackages(packages, tabType) {
+            content.innerHTML = ''; // Clear current content
+            if (packages.length === 0) {
+                content.innerHTML = '<p style="text-align: center;">No packages found.</p>';
+            } else {
+                packages.forEach(pkg => {
+                    content.appendChild(createAppCard(pkg, tabType));
+                });
+            }
+            bindActionButtons(); // Re-bind buttons after rendering
+        }
+
+        // Helper to perform content transition and then render
+        function performContentRender(packages, tabType) {
+            content.classList.add('content-fade-out'); // Start fading out content
+            setTimeout(() => {
+                renderPackages(packages, tabType); // Render new content after fade-out
+                content.classList.remove('content-fade-out');
+                content.classList.add('content-fade-in'); // Start fading in new content
+                setTimeout(() => {
+                    content.classList.remove('content-fade-in'); // Remove class after animation
+                }, 300); // Duration of fadeIn animation
+            }, 300); // Duration of fade-out transition
+        }
+
+        function renderExplore(packagesToRender = explorePackages) {
+            clearStatus();
+            setActiveTab('tab-explore');
+            searchInput.style.display = 'block';
+            searchInput.placeholder = "Search available packages...";
+            performContentRender(packagesToRender, 'explore');
+        }
+
+        function renderInstalled(packagesToRender = installedPackages) {
+            clearStatus();
+            setActiveTab('tab-installed');
+            searchInput.style.display = 'block';
+            searchInput.placeholder = "Search installed packages...";
+            performContentRender(packagesToRender, 'installed');
+        }
+
+        function renderUpdates(packagesToRender = updates) {
+            clearStatus();
+            setActiveTab('tab-updates');
+            searchInput.style.display = 'block';
+            searchInput.placeholder = "Search for updates...";
+            performContentRender(packagesToRender, 'updates');
+        }
+
+        function bindActionButtons() {
+            // Function to handle showing password modal and triggering action (Modified)
+            function handleAction(command, name, source, rawName, button) {
+                const pkg = { name: name, source: source, raw_name: rawName };
+                // Disable button and add to queue
+                if (button) {
+                    button.disabled = true;
+                    button.classList.add('disabled');
+                    // Change button text and icon immediately to show 'Queued'
+                    button.innerHTML = '<i class="fas fa-hourglass-half"></i> Queued'; 
+                }
+                addToOperationQueue({ command, pkg });
+            }
+
+            document.querySelectorAll('.btn.install').forEach(btn => {
+                // Ensure button is not already disabled by a previous queueing
+                // Also ensure that the event listener is not added multiple times by checking for 'onclick'
+                if (!btn.disabled && !btn.onclick) { 
+                    btn.onclick = e => {
+                        e.stopPropagation(); // Prevent card click
+                        const name = btn.dataset.name;
+                        const source = btn.dataset.source;
+                        const rawName = btn.dataset.rawName;
+                        handleAction('install', name, source, rawName, btn);
+                    }
+                }
+            });
+
+            document.querySelectorAll('.btn.uninstall').forEach(btn => {
+                if (!btn.disabled && !btn.onclick) {
+                    btn.onclick = e => {
+                        e.stopPropagation(); // Prevent card click
+                        const name = btn.dataset.name;
+                        const source = btn.dataset.source;
+                        const rawName = btn.dataset.rawName;
+                        handleAction('uninstall', name, source, rawName, btn);
+                    }
+                }
+            });
+
+            document.querySelectorAll('.btn.update').forEach(btn => {
+                if (!btn.disabled && !btn.onclick) {
+                    btn.onclick = e => {
+                        e.stopPropagation(); // Prevent card click
+                        const name = btn.dataset.name;
+                        const source = btn.dataset.source;
+                        const rawName = btn.dataset.rawName;
+                        handleAction('install', name, source, rawName, btn); // Update uses install command
+                    }
+                }
+            });
+        }
+
+
+        // --- Search Logic ---
+        searchInput.onkeydown = e => { // Changed from oninput to onkeydown
+            if (e.key === 'Enter') { // Check if Enter key was pressed
+                const term = e.target.value.trim();
+                if (term.length < 2 && currentTab !== 'explore') {
+                    // For installed/updates, if search is cleared, render full list
+                    if (currentTab === 'installed') renderInstalled();
+                    if (currentTab === 'updates') renderUpdates();
+                    return;
+                }
+
+                // Send search command to backend based on current tab
+                let searchScope;
+                if (currentTab === 'explore') {
+                    searchScope = 'explore';
+                } else if (currentTab === 'installed') {
+                    searchScope = 'installed';
+                } else if (currentTab === 'updates') {
+                    searchScope = 'updates';
+                }
+
+                setStatus(`Searching for "${term}"...`);
+                // Start fading out content immediately when search begins
+                content.classList.add('content-fade-out');
+
+                if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.appstore) {
+                    window.webkit.messageHandlers.appstore.postMessage(JSON.stringify({
+                        command: 'search',
+                        term: term,
+                        scope: searchScope
+                    }));
+                } else {
+                    console.error("webkit.messageHandlers.appstore not available for search.");
+                    setStatus("Error: Backend communication not ready.");
+                    content.classList.remove('content-fade-out'); // Remove if no backend
+                }
+            }
+        };
+
+        // --- App Detail Modal Logic ---
+        function showAppDetailModal(pkg, tabType) {
+            modalAppName.textContent = pkg.name;
+            modalAppVersion.textContent = pkg.version ? `Version: ${pkg.version}` : '';
+            modalAppSource.textContent = pkg.source ? `Source: ${pkg.source}` : '';
+            modalAppDescription.textContent = pkg.description;
+
+            modalAppActions.innerHTML = ''; // Clear previous buttons
+
+            let iconHtml;
+            if (pkg.icon && (pkg.icon.startsWith('fas fa-') || pkg.icon.startsWith('fab fa-'))) {
+                iconHtml = `<i class="${pkg.icon}"></i>`;
+            } else if (pkg.icon) {
+                iconHtml = `<img src="${pkg.icon}" alt="${pkg.name} Icon">`;
+            } else {
+                iconHtml = `<i class="fas fa-cube"></i>`; // Default icon
+            }
+            modalAppIcon.innerHTML = iconHtml;
+
+            // Check if package is already in queue or active to disable buttons
+            const pkgIdentifier = pkg.raw_name || pkg.name;
+            const isQueuedOrActive = operationQueue.some(op => op.id === pkgIdentifier) || 
+                                     (currentActiveOperation && currentActiveOperation.id === pkgIdentifier);
+
+            // Use helper to get button state
+            const getModalButtonState = (command, pkgId, defaultText, defaultIconClass) => {
+                const currentOp = currentActiveOperation;
+                const isCurrent = currentOp && currentOp.id === pkgId && currentOp.command === command;
+                const isQueued = operationQueue.some(op => op.id === pkgId && op.command === command);
+                
+                if (isCurrent) return { text: `${command.charAt(0).toUpperCase() + command.slice(1)}ing...`, icon: '<i class="fas fa-spinner fa-spin"></i>', disabled: true };
+                if (isQueued) return { text: 'Queued', icon: '<i class="fas fa-hourglass-half"></i>', disabled: true };
+                return { text: defaultText, icon: `<i class="${defaultIconClass}"></i>`, disabled: false };
+            };
+
+
+            if (tabType === 'explore') {
+                const installBtn = document.createElement('button');
+                const state = getModalButtonState('install', pkgIdentifier, 'Install', 'fas fa-download');
+                installBtn.className = `btn install ${state.disabled ? 'disabled' : ''}`;
+                installBtn.disabled = state.disabled;
+                installBtn.innerHTML = `${state.icon} ${state.text}`;
+                logToPython(`DEBUG JS MODAL: Install button for ${pkg.name} is disabled: ${state.disabled}`); // DEBUG LOG
+                installBtn.onclick = () => {
+                    logToPython("Install button in detail modal clicked. Calling handleAction."); // DEBUG LOG
+                    handleAction('install', pkg.name, pkg.source, pkg.raw_name, installBtn); // Pass button reference
+                    appDetailModal.style.display = 'none'; // Hide app detail modal
+                };
+                modalAppActions.appendChild(installBtn);
+            } else if (tabType === 'installed') {
+                const uninstallBtn = document.createElement('button');
+                const state = getModalButtonState('uninstall', pkgIdentifier, 'Uninstall', 'fas fa-trash-alt');
+                uninstallBtn.className = `btn uninstall ${state.disabled ? 'disabled' : ''}`;
+                uninstallBtn.disabled = state.disabled;
+                uninstallBtn.innerHTML = `${state.icon} ${state.text}`;
+                logToPython(`DEBUG JS MODAL: Uninstall button for ${pkg.name} is disabled: ${state.disabled}`); // DEBUG LOG
+                uninstallBtn.onclick = () => {
+                    logToPython("Uninstall button in detail modal clicked. Calling handleAction."); // DEBUG LOG
+                    handleAction('uninstall', pkg.name, pkg.source, pkg.raw_name, uninstallBtn); // Pass button reference
+                    appDetailModal.style.display = 'none'; // Hide app detail modal
+                };
+                modalAppActions.appendChild(uninstallBtn);
+            } else if (tabType === 'updates') {
+                const updateBtn = document.createElement('button');
+                // Special handling for update button text, as it uses 'install' command internally
+                let stateText = 'Update';
+                let stateIcon = '<i class="fas fa-cloud-download-alt"></i>';
+                let stateDisabled = isQueuedOrActive;
+
+                if (currentActiveOperation && currentActiveOperation.id === pkgIdentifier && currentActiveOperation.command === 'install' && currentActiveOperation.pkg.name === pkg.name) {
+                    stateText = 'Updating...';
+                    stateIcon = '<i class="fas fa-spinner fa-spin"></i>';
+                    stateDisabled = true;
+                } else if (operationQueue.some(op => op.id === pkgIdentifier && op.command === 'install' && op.pkg.name === pkg.name)) {
+                    stateText = 'Queued';
+                    stateIcon = '<i class="fas fa-hourglass-half"></i>';
+                    stateDisabled = true;
+                }
+
+                updateBtn.className = `btn update ${stateDisabled ? 'disabled' : ''}`;
+                updateBtn.disabled = stateDisabled;
+                updateBtn.innerHTML = `${stateIcon} ${stateText}`;
+                logToPython(`DEBUG JS MODAL: Update button for ${pkg.name} is disabled: ${stateDisabled}`); // DEBUG LOG
+                updateBtn.onclick = () => {
+                    logToPython("Update button in detail modal clicked. Calling handleAction."); // DEBUG LOG
+                    handleAction('install', pkg.name, pkg.source, pkg.raw_name, updateBtn); // Update uses install command, pass button reference
+                    appDetailModal.style.display = 'none'; // Hide app detail modal
+                };
+                modalAppActions.appendChild(updateBtn);
+            }
+
+            appDetailModal.style.display = 'flex'; // Show the modal
+        }
+
+        // Close app detail modal when close button is clicked
+        closeAppDetailModalBtn.onclick = () => {
+            logToPython("Closing app detail modal."); // Debug log
+            appDetailModal.style.display = 'none';
+        };
+
+        // Close app detail modal when clicking outside of the modal content
+        window.addEventListener('click', (event) => {
+            // Check if the click is outside the appDetailModal-content but on the modal backdrop itself
+            if (event.target === appDetailModal) {
+                logToPython("Clicked outside app detail modal, closing."); // Debug log
+                appDetailModal.style.display = 'none';
+            }
+        });
+
+
+        // --- Event Listeners ---
+
+        document.getElementById('tab-explore').onclick = () => {
+            currentTab = 'explore';
+            setActiveTab('tab-explore'); // Set active tab
+            fetchExplorePackages(); // Fetch initial explore packages
+            searchInput.value = ''; // Clear search input when changing tabs
+        };
+        document.getElementById('tab-installed').onclick = () => {
+            currentTab = 'installed';
+            setActiveTab('tab-installed'); // Set active tab
+            fetchInstalled();
+            searchInput.value = ''; // Clear search input when changing tabs
+        };
+        document.getElementById('tab-updates').onclick = () => {
+            currentTab = 'updates';
+            setActiveTab('tab-updates'); // Set active tab
+            fetchUpdates();
+            searchInput.value = ''; // Clear search input when changing tabs
+        };
+
+        // Refresh button
+        document.getElementById('refreshBtn').onclick = () => {
+            if (currentTab === 'explore') fetchExplorePackages();
+            else if (currentTab === 'installed') fetchInstalled();
+            else if (currentTab === 'updates') fetchUpdates();
+            // Re-render current tab after refresh to ensure button states are updated
+            if (currentTab === 'explore') renderExplore();
+            else if (currentTab === 'installed') renderInstalled();
+            else if (currentTab === 'updates') renderUpdates();
+        };
+
+        // --- Backend Communication (webkit.messageHandlers) ---
+
+        window.appstoreReceive = function (msg) {
+            logToPython("Received message from backend:" + JSON.stringify(msg)); // Log the full message
+            if (msg.response === 'explorePackages') {
+                explorePackages = msg.data;
+                if (currentTab === 'explore') {
+                    // Only render if we are on the explore tab
+                    performContentRender(explorePackages, 'explore');
+                }
+                clearStatus();
+            } else if (msg.response === 'installedPackages') {
+                installedPackages = msg.data;
+                if (currentTab === 'installed') performContentRender(installedPackages, 'installed');
+                clearStatus();
+            } else if (msg.response === 'updatePackages') {
+                updates = msg.data;
+                if (currentTab === 'updates') performContentRender(updates, 'updates');
+                clearStatus();
+            } else if (msg.response === 'searchResults') {
+                lastSearchResults = msg.data; // Store results
+                // This is where content gets re-rendered after search, so ensure transition
+                if (currentTab === 'explore') {
+                    performContentRender(lastSearchResults, 'explore'); // Render search results for explore
+                } else if (currentTab === 'installed') {
+                    performContentRender(lastSearchResults, 'installed'); // Render search results for installed
+                } else if (currentTab === 'updates') {
+                    performContentRender(lastSearchResults, 'updates'); // Render search results for updates
+                }
+                clearStatus();
+            } else if (msg.response === 'operationStatus') {
+                setStatus(msg.status);
+            } else if (msg.response === 'operationProgress') {
+                // Update UI for ongoing operation
+                const { id, name, command, status, progress } = msg;
+                updateOperationUI(id, name, command, status, progress);
+            } else if (msg.response === 'operationCompleted') {
+                // Mark operation as complete and re-render UI
+                const { id, success, message } = msg;
+                operationCompleted(id, success, message);
+                // The refresh and re-render logic is now inside operationCompleted for better control
+            } else if (msg.response === 'refresh') {
+                // This 'refresh' from backend now just triggers frontend refreshes
+                // which will then fetch data and re-render with updated button states
+                fetchInstalled();
+                fetchUpdates();
+                fetchExplorePackages(); 
+                clearStatus(); 
+                // Re-render current tab's view to reflect new install/uninstall status
+                if (currentTab === 'explore') renderExplore();
+                else if (currentTab === 'installed') renderInstalled();
+                else if (currentTab === 'updates') renderUpdates();
+            }
+        };
+
+        // Initial load
+        fetchExplorePackages(); // Load initial explore data
+    </script>
+
+</body>
+
+</html>
